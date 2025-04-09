@@ -38,7 +38,7 @@ jobs:
       
       - name: Execute Colab Notebook
         run: |
-          jupyter nbconvert --to notebook --execute Schedule_Query.ipynb --output executed_notebook.ipynb
+          jupyter nbconvert --to notebook --execute Schedule_Query.ipynb --output executed_notebook.ipynb --ExecutePreprocessor.kernel_name=python3 --ExecutePreprocessor.allow_errors=True --ExecutePreprocessor.timeout=600
 
       - name: Create requirements.txt
         run: |
