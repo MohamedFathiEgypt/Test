@@ -35,18 +35,18 @@ jobs:
         pip install numpy==1.26.4
         pip install -r requirements.txt
         pip check  
-        - name: Execute Jupyter Notebook
-        run: |
+    - name: Execute Jupyter Notebook
+      run: |
           jupyter nbconvert --to notebook --execute Schedule_Query.ipynb --output executed_notebook.ipynb --ExecutePreprocessor.kernel_name=python3 --ExecutePreprocessor.allow_errors=True
 
-        - name: Commit and push changes
-          env:
+    - name: Commit and push changes
+      env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          run: |
+      run: |
               git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add executed_notebook.ipynb
-        git commit -m "Update executed notebook" || echo "No changes to commit"
-        git push origin HEAD:${{ github.ref }}
+              git config --global user.email "github-actions[bot]@users.noreply.github.com"
+              git add executed_notebook.ipynb
+              git commit -m "Update executed notebook" || echo "No changes to commit"
+              git push origin HEAD:${{ github.ref }}
     
       
