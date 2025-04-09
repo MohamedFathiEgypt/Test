@@ -50,6 +50,8 @@ jobs:
               if git diff-index --quiet HEAD --; then
                 echo "No changes to commit"
               else
-                git commit -m "Update executed notebook"
-                git push origin HEAD:${{ github.ref }}
+                  git fetch origin
+                  git rebase origin/${{ github.ref_name }} # Resolve conflicts if required
+                  git commit -m "Update executed notebook"
+                  git push origin HEAD:${{ github.ref }}
               fi
