@@ -1,5 +1,5 @@
-traitlets
-jupyter
+traitlets ==5.14.3
+jupyter ==7.3
 nbconvert
 gspread
 google-auth
