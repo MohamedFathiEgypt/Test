@@ -11,3 +11,4 @@ google-auth-oauthlib
 google-auth-httplib2
 git+https://github.com/googlecolab/colabtools.git
 Pillow
+google-colab==1.0.0
