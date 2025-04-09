@@ -34,7 +34,7 @@ jobs:
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
           git add executed_notebook.ipynb
-          git commit -m 'Executed notebook'
+          git commit -m 'Schedule_Query'
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
