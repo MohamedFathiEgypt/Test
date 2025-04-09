@@ -1,3 +1,6 @@
+!pip install session-info
+import session_info
+session_info.show()
 jupyter
 google-colab
 gspread
