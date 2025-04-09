@@ -1,6 +1,5 @@
 traitlets==4.3.3
-jupyter==1.0.0
-gspread
+jupyter
 nbconvert
 gspread
 google-auth
