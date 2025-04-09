@@ -21,27 +21,25 @@ jobs:
         python-version: 3.9  # Updated Python version
 
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -U git+https://github.com/twopirllc/pandas-ta.git@development
-        pip install numpy==1.26.4 
-        pip install -r requirements.txt
+    run: |
+      python -m pip install --upgrade pip
+      pip install -U git+https://github.com/twopirllc/pandas-ta.git@development
+      pip install numpy==1.26.4
+      pip install -r requirements.txt
+      pip check  
         
-
     - name: Execute Jupyter Notebook
       run: |
         jupyter nbconvert --to notebook --execute Schedule_Query.ipynb --output executed_notebook.ipynb --ExecutePreprocessor.kernel_name=python3 --ExecutePreprocessor.allow_errors=True
 
     - name: Commit and push changes
-
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        PAT: ${{ secrets.PAT }}
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add executed_notebook.ipynb
-        git commit -m "Update executed notebook"
-        git push https://${{ secrets.PAT }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    run: |
+      git config --global user.name "github-actions[bot]"
+      git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      git add executed_notebook.ipynb
+      git commit -m "Update executed notebook" || echo "No changes to commit"
+      git push origin HEAD:${{ github.ref }}
     
       
