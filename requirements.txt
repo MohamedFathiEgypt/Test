@@ -1,5 +1,5 @@
-traitlets ==5.14.3
-jupyter ==1.1.1
+traitlets ==5.9.0
+jupyter ==1.0.0
 jinja2==3.0.3
 nbconvert
 gspread
