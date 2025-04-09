@@ -1,0 +1,34 @@
+on:
+  schedule:
+    - cron: '0 10 * * *'
+
+jobs:
+  check-run:
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.check_local_time.outputs.run }}
+    steps:
+      - name: Check local time
+        id: check_local_time
+        env: 
+          TRIGGER: ${{ github.event_name }}
+        run: |
+          echo "Trigger: ${TRIGGER}"
+          if [[ ${TRIGGER} == 'schedule' ]]; then
+            echo "Checking daylight saving time"
+            if [ $(date --date='TZ="Europe/Berlin" now' +%H) -eq '18' ]; then 
+              echo 'Time to run!'
+              echo "run=True" >> "$GITHUB_OUTPUT"
+            else
+              echo "It's not 18:05 local time in Europe/Berlin. Waiting for next execution..."
+              echo "run=False" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo 'Trigger is not cron, ommiting time check!'
+            echo "run=True" >> "$GITHUB_OUTPUT"
+          fi
+  
+  my-job:
+    runs-on: ubuntu-latest
+    if: needs.check-run.outputs.run == 'True'
+    needs: check-run
