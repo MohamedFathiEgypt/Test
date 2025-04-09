@@ -56,4 +56,5 @@ jobs:
                     git stash pop || true
                     git commit -m "Update executed notebook"
                     git push origin HEAD:${{ github.ref }}
+                    git config --global user.email "github-actions:
               fi
