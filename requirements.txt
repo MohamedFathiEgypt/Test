@@ -1,4 +1,4 @@
-traitlets==4.3.3
+traitlets
 jupyter
 nbconvert
 gspread
