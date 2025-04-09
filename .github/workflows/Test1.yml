@@ -38,12 +38,16 @@ jobs:
         run: |
           jupyter nbconvert --to notebook --execute Schedule_Query.ipynb --output executed_notebook.ipynb
 
+      - name: Create requirements.txt
+        run: |
+          pip freeze > requirements.txt
+
       - name: Commit and push changes
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
-          git add executed_notebook.ipynb
-          git commit -m 'Schedule_Query'
+          git add requirements.txt executed_notebook.ipynb
+          git commit -m 'Add requirements.txt and update executed_notebook.ipynb'
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
