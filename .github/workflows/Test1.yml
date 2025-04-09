@@ -11,7 +11,7 @@ on:
 jobs:
   execute-colab-notebook:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -33,6 +33,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip==23.0.1  # Use a compatible version of pip
           pip install traitlets==4.3.3 jupyter==1.0.0
+          pip install jinja2==3.0.3  # Pin jinja2 to a compatible version
           pip install -r requirements.txt
       
       - name: Execute Colab Notebook
