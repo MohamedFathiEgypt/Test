@@ -53,12 +53,3 @@ jobs:
               else
                 echo "No changes to commit"
               fi
-              
-              git diff-index --quiet HEAD -- || git commit -m "Update executed notebook"
-              git commit -m "Update executed notebook" || echo "No changes to commit"
-              git push origin HEAD:${{ github.ref }} || true
-              git add requirements.txt
-              git commit -m "Fix invalid entry in requirements.txt"
-              git push origin main
-    
-      
