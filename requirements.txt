@@ -1,5 +1,4 @@
 jupyter
-google-colab
 gspread
 nbconvert
 gspread
