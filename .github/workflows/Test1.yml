@@ -28,8 +28,7 @@ jobs:
       
       - name: Execute Colab Notebook
         run: |
-          python execute_colab_notebook.py
-
+          python Schedule_Query.ipynb
       - name: Commit and push changes
         run: |
           git config --global user.name 'github-actions'
