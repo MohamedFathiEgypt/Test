@@ -3,7 +3,7 @@ name: Schedule Colab Notebook Execution
 on:
   schedule:
     # Run the workflow every day at midnight UTC
-  - cron: '*0/03 * * * *'
+  - cron: '*0/10 * * * *'
   push:
     branches:
       - main
