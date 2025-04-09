@@ -13,4 +13,4 @@ google-auth-httplib2
 git+https://github.com/googlecolab/colabtools.git
 Pillow
 google-colab
-numpy==1.21.0
+numpy>=1.20.0,<1.25.0
