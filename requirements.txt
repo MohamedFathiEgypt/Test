@@ -1,6 +1,3 @@
-!pip install session-info
-import session_info
-session_info.show()
 jupyter
 google-colab
 gspread
@@ -9,3 +6,4 @@ gspread
 google-auth
 google-auth-oauthlib
 google-auth-httplib2
+git+https://github.com/googlecolab/colabtools.git
