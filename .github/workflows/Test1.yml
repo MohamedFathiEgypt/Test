@@ -47,15 +47,18 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+        # Stage changes
         git add executed_notebook.ipynb || true
 
         # Check if there are changes to commit
         if git diff-index --quiet HEAD --; then
           echo "No changes to commit"
         else
-          git stash push -m "Stashing changes before pull"
-          git pull origin ${{ github.ref_name }} --rebase
-          git stash pop || true
-          git commit -m "Update executed notebook"
-          git push origin HEAD:${{ github.ref_name }}
+          # Pull with rebase to handle any upstream changes
+          git pull origin ${{ github.ref_name }} --rebase || true
+
+          # Commit and push changes
+        git commit -m "Update executed notebook"
+        git push origin HEAD:${{ github.ref_name }} || echo "Push failed due to conflict or other issue"
         fi
