@@ -5,7 +5,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: '50 10 * * *'
+    - cron: '50 8 * * *'
 
 jobs:
   execute-notebook:
