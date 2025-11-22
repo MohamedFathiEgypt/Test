@@ -1,79 +1,35 @@
-name: Automated Notebook Runner
+name: Run Snowflake Task Daily
 
 on:
-  workflow_dispatch:  # Manual trigger
   schedule:
-    - cron: '*/5 * * * *'  # Every 5 minutes
+    - cron: '0 7 * * *'  
+  workflow_dispatch:  
 
 jobs:
-  execute-notebook:
+  run-snowflake:
     runs-on: ubuntu-latest
 
     steps:
-    # 1️⃣ Checkout main repository code
-    - name: Checkout repository
-      uses: actions/checkout@v4
+    - name: Checkout Repository
+      uses: actions/checkout@v3
 
-    # 2️⃣ Set up Python environment
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v4
       with:
-        python-version: 3.9
+        python-version: '3.11'
 
-    # 3️⃣ Cache dependencies for faster workflow runs
-    - name: Cache pip dependencies
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt' ) }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-
-    # 4️⃣ Install all Python dependencies
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        
-        # Install your forked pandas-ta directly from your GitHub repository
-        pip install git+https://github.com/MohamedFathiEgypt/Test.git
-        
-        # Install other packages from your corrected requirements file
-        pip install -r requirements.txt
-        
-        # Verify that all dependencies are compatible
-        pip check
+        pip install snowflake-connector-python
 
-    # 5️⃣ Execute the Jupyter Notebook
-    - name: Execute Jupyter Notebook
-      id: execute_notebook
-      run: |
-        TIMESTAMP=$(date +'%Y%m%d_%H%M%S' )
-        OUTPUT_NOTEBOOK="executed_notebook_${TIMESTAMP}.ipynb"
-        echo "OUTPUT_NOTEBOOK=$OUTPUT_NOTEBOOK" >> $GITHUB_OUTPUT
-
-        jupyter nbconvert --to notebook --execute Schedule_Query.ipynb \
-          --output "$OUTPUT_NOTEBOOK" \
-          --ExecutePreprocessor.kernel_name=python3 \
-          --ExecutePreprocessor.allow_errors=True
-
-    # 6️⃣ Commit and push the executed notebook back to the repository
-    - name: Commit and push executed notebook
+    - name: Run Snowflake Script
+      run: python snowflake_task.py
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-        mkdir -p executed_notebooks
-        mv "${{ steps.execute_notebook.outputs.OUTPUT_NOTEBOOK }}" executed_notebooks/
-
-        git add executed_notebooks/
-
-        # Commit and push only if there are actual changes
-        if ! git diff-index --quiet HEAD; then
-          git pull origin ${{ github.ref_name }} --rebase
-          git commit -m "Add executed notebook: ${{ steps.execute_notebook.outputs.OUTPUT_NOTEBOOK }}"
-          git push origin HEAD:${{ github.ref_name }}
-        else
-          echo "No changes to commit."
-        fi
+        SNOW_USER: ${{ secrets.SNOW_USER }}
+        SNOW_PASSWORD: ${{ secrets.SNOW_PASSWORD }}
+        SNOW_ACCOUNT: ${{ secrets.SNOW_ACCOUNT }}
+        SNOW_WH: ${{ secrets.SNOW_WH }}
+        SNOW_DB: ${{ secrets.SNOW_DB }}
+        SNOW_SCHEMA: ${{ secrets.SNOW_SCHEMA }}
+        SNOW_ROLE: ${{ secrets.SNOW_ROLE }}
