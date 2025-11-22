@@ -1,108 +1,52 @@
-name: Run Snowflake Task Daily
+name: Run Snowflake Task Daily  # اسم workflow فقط مرة واحدة
 
-on:
+on:                             # triggers فقط مرة واحدة
   schedule:
-    - cron: '0 7 * * *'  
-  workflow_dispatch:  
+    - cron: '0 7 * * *'
+  workflow_dispatch:
 
-jobs:
-  run-snowflake:name: Run Snowflake Task Daily
-
-on:
-  schedule:
-    - cron: '0 7 * * *'  
-  workflow_dispatch:  
-
-jobs:
+jobs:                           # jobs فقط مرة واحدة
   run-snowflake:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install snowflake-connector-python
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install snowflake-connector-python
 
-    - name: Run Snowflake Script
-      run: python snowflake_task.py
-      env:
-        SNOW_USER: ${{ secrets.SNOW_USER }}
-        SNOW_PASSWORD: ${{ secrets.SNOW_PASSWORD }}
-        SNOW_ACCOUNT: ${{ secrets.SNOW_ACCOUNT }}
-        SNOW_WH: ${{ secrets.SNOW_WH }}
-        SNOW_DB: ${{ secrets.SNOW_DB }}
-        SNOW_SCHEMA: ${{ secrets.SNOW_SCHEMA }}
-        SNOW_ROLE: ${{ secrets.SNOW_ROLE }}
+      - name: Run Snowflake Script
+        run: python snowflake_task.py
+        env:
+          SNOW_USER: ${{ secrets.SNOW_USER }}
+          SNOW_PASSWORD: ${{ secrets.SNOW_PASSWORD }}
+          SNOW_ACCOUNT: ${{ secrets.SNOW_ACCOUNT }}
+          SNOW_WH: ${{ secrets.SNOW_WH }}
+          SNOW_DB: ${{ secrets.SNOW_DB }}
+          SNOW_SCHEMA: ${{ secrets.SNOW_SCHEMA }}
+          SNOW_ROLE: ${{ secrets.SNOW_ROLE }}
 
-    - name: Commit executed notebook
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Commit executed notebook
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-        mkdir -p executed_notebooks
-        mv "executed_notebook_20251122_183224.ipynb" executed_notebooks/ || echo "No notebook to move"
+          mkdir -p executed_notebooks
+          mv "executed_notebook_20251122_183224.ipynb" executed_notebooks/ || echo "No notebook to move"
 
-        git add executed_notebooks/
+          git add executed_notebooks/
 
-        # Commit changes first if any
-        if ! git diff-index --quiet HEAD; then
-          git commit -m "Add executed notebook: executed_notebook_20251122_183224.ipynb"
-        fi
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "Add executed notebook: executed_notebook_20251122_183224.ipynb"
+          fi
 
-        # Pull latest changes with rebase safely
-        git pull --rebase origin main
-
-        # Push changes
-        git push origin HEAD:main
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
-
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install snowflake-connector-python
-
-    - name: Run Snowflake Script
-      run: python snowflake_task.py
-      env:
-        SNOW_USER: ${{ secrets.SNOW_USER }}
-        SNOW_PASSWORD: ${{ secrets.SNOW_PASSWORD }}
-        SNOW_ACCOUNT: ${{ secrets.SNOW_ACCOUNT }}
-        SNOW_WH: ${{ secrets.SNOW_WH }}
-        SNOW_DB: ${{ secrets.SNOW_DB }}
-        SNOW_SCHEMA: ${{ secrets.SNOW_SCHEMA }}
-        SNOW_ROLE: ${{ secrets.SNOW_ROLE }}
-
-    - name: Commit executed notebook
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-        mkdir -p executed_notebooks
-        mv "executed_notebook_20251122_182804.ipynb" executed_notebooks/ || echo "No notebook to move"
-
-        git add executed_notebooks/
-
-        if ! git diff-index --quiet HEAD; then
-          git commit -m "Add executed notebook: executed_notebook_20251122_182804.ipynb"
-        fi
-
-        git pull --rebase origin main
-        git push origin HEAD:main
+          git pull --rebase origin main
+          git push origin HEAD:main
