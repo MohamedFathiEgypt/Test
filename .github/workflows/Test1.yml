@@ -10,42 +10,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1️⃣ Checkout main repository (no submodule needed)
+    # 1️⃣ Checkout main repository code
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # 2️⃣ Set up Python
+    # 2️⃣ Set up Python environment
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: 3.9
 
-    # 3️⃣ Cache dependencies for faster builds
+    # 3️⃣ Cache dependencies for faster workflow runs
     - name: Cache pip dependencies
       uses: actions/cache@v4
       with:
         path: ~/.cache/pip
-        # The cache key no longer needs to check for the submodule
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
 
-    # 4️⃣ Install all dependencies
+    # 4️⃣ Install all Python dependencies
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         
-        # Install your forked pandas-ta directly from your GitHub repo
-        # This is the key change that avoids any local setup
+        # Install your forked pandas-ta directly from your GitHub repository
         pip install git+https://github.com/MohamedFathiEgypt/Test.git
         
         # Install other packages from your requirements file
+        # Make sure 'google-colab' has been removed from this file
         pip install -r requirements.txt
         
         # Verify that all dependencies are compatible
         pip check
 
-    # 5️⃣ Execute Jupyter Notebook
+    # 5️⃣ Execute the Jupyter Notebook
     - name: Execute Jupyter Notebook
       id: execute_notebook
       run: |
@@ -59,7 +58,7 @@ jobs:
           --ExecutePreprocessor.kernel_name=python3 \
           --ExecutePreprocessor.allow_errors=True
 
-    # 6️⃣ Commit and push the executed notebook
+    # 6️⃣ Commit and push the executed notebook back to the repository
     - name: Commit and push executed notebook
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -72,6 +71,7 @@ jobs:
 
         git add executed_notebooks/
 
+        # Commit and push only if there are actual changes
         if ! git diff-index --quiet HEAD; then
           git pull origin ${{ github.ref_name }} --rebase
           git commit -m "Add executed notebook: ${{ steps.execute_notebook.outputs.OUTPUT_NOTEBOOK }}"
