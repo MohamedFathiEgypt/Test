@@ -13,7 +13,6 @@ google-auth-httplib2
 Pillow
 google-colab
 numpy==1.26.4
-
-git add requirements.txt Schedule_Query.ipynb
-git commit -m "fix: Remove google-colab dependency"
-git push
+pandas
+numpy
+gspread
