@@ -2,7 +2,7 @@ import snowflake.connector
 import os
 
 # ---------------------- Snowflake Credentials ----------------------
-# سيتم أخذ القيم من GitHub Secrets
+
 user = os.environ.get("SNOW_USER")
 password = os.environ.get("SNOW_PASSWORD")
 account = os.environ.get("SNOW_ACCOUNT")
