@@ -1,32 +1,10 @@
-Skip to content
-Navigation Menu
-MohamedFathiEgypt
-Test
-
-Type / to search
-Code
-Issues
-Pull requests
-Actions
-Projects
-Wiki
-Security
-Insights
-Settings
-Run Snowflake Task Daily
-Run Snowflake Task Daily #250
-Jobs
-Run details
-Workflow file for this run
-.github/workflows/Test1.yml at b400fa1
-name: Run Snowflake Task Daily  # اسم workflow فقط مرة واحدة
-
-on:                             # triggers فقط مرة واحدة
+name: Run Snowflake Task Daily  
+on:                            
   schedule:
     - cron: '0 7 * * *'
   workflow_dispatch:
 
-jobs:                           # jobs فقط مرة واحدة
+jobs:                          
   run-snowflake:
     runs-on: ubuntu-latest
 
@@ -66,4 +44,3 @@ jobs:                           # jobs فقط مرة واحدة
           fi
           git pull --rebase origin main
           git push origin HEAD:main
-Refactor Snowflake workflow for clarity and efficiency · MohamedFathiEgypt/Test@b400fa1 
