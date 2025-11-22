@@ -10,7 +10,6 @@ gspread
 google-auth
 google-auth-oauthlib
 google-auth-httplib2
-git+https://github.com/googlecolab/colabtools.git
 Pillow
 google-colab
 numpy==1.26.4
