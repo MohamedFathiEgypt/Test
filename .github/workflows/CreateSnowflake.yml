@@ -1,30 +1,59 @@
-name: Run Snowflake Task Daily  # اسم workflow فقط مرة واحدة
+name: Run Snowflake Task Daily
 
-on:                            
+on:
   schedule:
-    - cron: '0 7 * * *'
+    - cron: '0 7 * * *'  
   workflow_dispatch:
 
-jobs:                          
+jobs:
   run-snowflake:
     runs-on: ubuntu-latest
 
     steps:
+      # ---------------------- Checkout repo ----------------------
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      # ---------------------- Set up Python ----------------------
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
+      # ---------------------- Install dependencies ----------------------
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install snowflake-connector-python
+          pip install pandas yagmail
 
+      # ---------------------- Run Snowflake Script and save report ----------------------
       - name: Run Snowflake Script
-        run: python snowflake_task.py
+        id: run_snowflake
+        run: |
+          python - <<EOF
+import os
+import snowflake.connector
+import pandas as pd
+
+# اتصال بـ Snowflake
+conn = snowflake.connector.connect(
+    user=os.environ['SNOW_USER'],
+    password=os.environ['SNOW_PASSWORD'],
+    account=os.environ['SNOW_ACCOUNT'],
+    warehouse=os.environ['SNOW_WH'],
+    database=os.environ['SNOW_DB'],
+    schema=os.environ['SNOW_SCHEMA'],
+    role=os.environ['SNOW_ROLE']
+)
+
+query = "SELECT COUNT(*) AS total_rows FROM PRODUCTION.BOOSTINY_RAW.LINK_RAW_DAILY_VALIDATED"
+df = pd.read_sql(query, conn)
+conn.close()
+
+# احفظ العدد في متغير output
+print(f"::set-output name=total_rows::{df['TOTAL_ROWS'][0]}")
+EOF
         env:
           SNOW_USER: ${{ secrets.SNOW_USER }}
           SNOW_PASSWORD: ${{ secrets.SNOW_PASSWORD }}
@@ -34,19 +63,28 @@ jobs:
           SNOW_SCHEMA: ${{ secrets.SNOW_SCHEMA }}
           SNOW_ROLE: ${{ secrets.SNOW_ROLE }}
 
-      - name: Commit executed notebook
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      # ---------------------- Send Result Email ----------------------
+      - name: Send Result Email
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.SENDER_EMAIL }}
+          password: ${{ secrets.SENDER_PASSWORD }}
+          subject: "GitHub Daily Run Status: ${{ job.status }}"
+          body: |
+            Hello Team,
 
-          mkdir -p executed_notebooks
-          mv "executed_notebook_20251122_183224.ipynb" executed_notebooks/ || echo "No notebook to move"
+            The GitHub scheduled workflow has finished.
 
-          git add executed_notebooks/
+            Status: ${{ job.status }}
+            Total rows in table LINK_RAW_DAILY_VALIDATED: ${{ steps.run_snowflake.outputs.total_rows }}
 
-          if ! git diff-index --quiet HEAD; then
-            git commit -m "Add executed notebook: executed_notebook_20251122_183224.ipynb"
-          fi
-
-          git pull --rebase origin main
-          git push origin HEAD:main
+            Best Regards,
+            GitHub Automation
+          to: |
+            Mohamed.othman@arabyads.com
+            mahmoud.soror@arabyads.com
+            ahmed.salah@arabyads.com
+          from: "GitHub Automation <${{ secrets.SENDER_EMAIL }}>"
