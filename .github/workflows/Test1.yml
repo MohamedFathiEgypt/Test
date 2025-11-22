@@ -2,8 +2,8 @@ name: Run Snowflake Task Daily
 
 on:
   schedule:
-    - cron: '0 7 * * *'  
-  workflow_dispatch:  
+    - cron: '0 7 * * *'  # كل يوم الساعة 7 صباحًا UTC
+  workflow_dispatch:  # لتشغيله يدويًا
 
 jobs:
   run-snowflake:
@@ -33,3 +33,20 @@ jobs:
         SNOW_DB: ${{ secrets.SNOW_DB }}
         SNOW_SCHEMA: ${{ secrets.SNOW_SCHEMA }}
         SNOW_ROLE: ${{ secrets.SNOW_ROLE }}
+
+    - name: Commit executed notebook
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+        mkdir -p executed_notebooks
+        mv "executed_notebook_20251122_182804.ipynb" executed_notebooks/ || echo "No notebook to move"
+
+        git add executed_notebooks/
+
+        if ! git diff-index --quiet HEAD; then
+          git commit -m "Add executed notebook: executed_notebook_20251122_182804.ipynb"
+        fi
+
+        git pull --rebase origin main
+        git push origin HEAD:main
