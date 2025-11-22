@@ -2,7 +2,7 @@ name: Run Snowflake Task Daily
 
 on:
   schedule:
-    - cron: '0 7 * * *'  
+    - cron: '0 7 * * *'   # كل يوم الساعة 7 صباحًا UTC
   workflow_dispatch:
 
 jobs:
@@ -51,8 +51,9 @@ query = "SELECT COUNT(*) AS total_rows FROM PRODUCTION.BOOSTINY_RAW.LINK_RAW_DAI
 df = pd.read_sql(query, conn)
 conn.close()
 
-# احفظ العدد في متغير output
-print(f"::set-output name=total_rows::{df['TOTAL_ROWS'][0]}")
+# حفظ العدد كـ output حديث
+with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+    f.write(f"total_rows={df['TOTAL_ROWS'][0]}\n")
 EOF
         env:
           SNOW_USER: ${{ secrets.SNOW_USER }}
