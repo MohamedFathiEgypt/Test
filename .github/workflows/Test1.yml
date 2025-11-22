@@ -10,15 +10,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # 1️⃣ Checkout your repository
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    # 2️⃣ Set up Python
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: 3.9
 
-    - name: Install dependencies including pandas-ta
+    # 3️⃣ Install dependencies including pandas-ta
+    - name: Install dependencies
       env:
         PAT_TOKEN: ${{ secrets.MY_PAT }}
       run: |
@@ -26,7 +29,7 @@ jobs:
         sudo apt-get update && sudo apt-get install -y git
 
         # Clone your private fork
-        git clone https://${PAT_TOKEN}@github.com/MohamedFathiEgypt/pandas-ta.git --branch main pandas-ta
+        git clone https://${PAT_TOKEN}@github.com/MohamedFathiEgypt/Test.git --branch main pandas-ta
 
         # Install locally in editable mode
         pip install -e ./pandas-ta
@@ -36,6 +39,7 @@ jobs:
         pip install -r requirements.txt
         pip check
 
+    # 4️⃣ Execute Jupyter Notebook
     - name: Execute Jupyter Notebook
       run: |
         TIMESTAMP=$(date +'%Y%m%d_%H%M%S')
@@ -49,6 +53,7 @@ jobs:
         mkdir -p executed_notebooks
         mv "$OUTPUT_NOTEBOOK" executed_notebooks/
 
+    # 5️⃣ Commit and push executed notebook
     - name: Commit and push executed notebook
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
