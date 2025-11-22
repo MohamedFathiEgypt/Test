@@ -25,7 +25,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt' ) }}
         restore-keys: |
           ${{ runner.os }}-pip-
 
@@ -37,8 +37,7 @@ jobs:
         # Install your forked pandas-ta directly from your GitHub repository
         pip install git+https://github.com/MohamedFathiEgypt/Test.git
         
-        # Install other packages from your requirements file
-        # Make sure 'google-colab' has been removed from this file
+        # Install other packages from your corrected requirements file
         pip install -r requirements.txt
         
         # Verify that all dependencies are compatible
@@ -52,7 +51,6 @@ jobs:
         OUTPUT_NOTEBOOK="executed_notebook_${TIMESTAMP}.ipynb"
         echo "OUTPUT_NOTEBOOK=$OUTPUT_NOTEBOOK" >> $GITHUB_OUTPUT
 
-        # Execute the notebook and save it with the timestamped name
         jupyter nbconvert --to notebook --execute Schedule_Query.ipynb \
           --output "$OUTPUT_NOTEBOOK" \
           --ExecutePreprocessor.kernel_name=python3 \
