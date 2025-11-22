@@ -1,17 +1,19 @@
-diffusers==0.20.2
-traitlets>=5.6.0
-jupyter==1.0.0
-ipython==7.34.0
-notebook>=6.5.0,<6.6.0
+# Core Data and Notebook Libraries
 pandas
-jinja2>=3.0.3
+numpy
+jupyter
+notebook
 nbconvert
+ipython
+
+# Google Sheets and Authentication
 gspread
 google-auth
 google-auth-oauthlib
 google-auth-httplib2
+
+# Other Utilities
 Pillow
-numpy==1.26.4
-pandas
-numpy
-gspread
+traitlets
+jinja2
+diffusers==0.20.2
