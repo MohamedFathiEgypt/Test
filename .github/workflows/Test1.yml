@@ -1,70 +1,82 @@
 name: Automated Notebook Runner
 
 on:
-  workflow_dispatch:       # Manual trigger
+  workflow_dispatch:  # Manual trigger
   schedule:
-    - cron: '*/5 * * * *' # Every 5 minutes
+    - cron: '*/5 * * * *'  # Every 5 minutes
 
 jobs:
   execute-notebook:
     runs-on: ubuntu-latest
 
     steps:
+    # 1️⃣ Checkout repository and the pandas-ta submodule
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive' # This fetches the code from your 'Test' repo into the 'pandas-ta' directory
 
+    # 2️⃣ Set up Python
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: 3.9
 
+    # 3️⃣ Cache dependencies for faster builds
+    - name: Cache pip dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt' ) }}-${{ hashFiles('**/pandas-ta/pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    # 4️⃣ Install all dependencies
     - name: Install dependencies
-      env:
-        PAT_TOKEN: ${{ secrets.MY_PAT }}  # Personal Access Token
       run: |
         python -m pip install --upgrade pip
-        sudo apt-get update && sudo apt-get install -y git
-
-        # Clone your forked pandas-ta repo
-        git clone https://${PAT_TOKEN}@github.com/MohamedFathiEgypt/Test.git pandas-ta
-
-        # Install locally
-        pip install ./pandas-ta
-
-        # Install other dependencies
-        pip install numpy==1.26.4
+        # Install your forked pandas-ta in editable mode from the submodule
+        pip install -e ./pandas-ta
+        # Install other packages from your requirements file
         pip install -r requirements.txt
+        # Verify that all dependencies are compatible
         pip check
 
-    - name: Execute Jupyter Notebook with timestamp
+    # 5️⃣ Execute Jupyter Notebook
+    - name: Execute Jupyter Notebook
+      id: execute_notebook # Add an ID to reference the output
       run: |
         TIMESTAMP=$(date +'%Y%m%d_%H%M%S')
         OUTPUT_NOTEBOOK="executed_notebook_${TIMESTAMP}.ipynb"
+        echo "OUTPUT_NOTEBOOK=$OUTPUT_NOTEBOOK" >> $GITHUB_OUTPUT
 
+        # Execute the notebook and save it with the timestamped name
         jupyter nbconvert --to notebook --execute Schedule_Query.ipynb \
           --output "$OUTPUT_NOTEBOOK" \
           --ExecutePreprocessor.kernel_name=python3 \
           --ExecutePreprocessor.allow_errors=True
 
+    # 6️⃣ Commit and push the executed notebook
     - name: Commit and push executed notebook
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        # Configure Git for the Actions bot
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-        TIMESTAMP=$(date +'%Y%m%d_%H%M%S')
-        OUTPUT_NOTEBOOK="executed_notebook_${TIMESTAMP}.ipynb"
-
+        # Create directory and move the new notebook into it
         mkdir -p executed_notebooks
-        mv "$OUTPUT_NOTEBOOK" executed_notebooks/
+        mv "${{ steps.execute_notebook.outputs.OUTPUT_NOTEBOOK }}" executed_notebooks/
 
-        git add executed_notebooks/"$OUTPUT_NOTEBOOK" || true
+        # Add the new notebook file to Git
+        git add executed_notebooks/
 
-        if git diff-index --quiet HEAD --; then
-          echo "No changes to commit"
+        # Commit and push if there are changes
+        if ! git diff-index --quiet HEAD; then
+          git pull origin ${{ github.ref_name }} --rebase
+          git commit -m "Add executed notebook: ${{ steps.execute_notebook.outputs.OUTPUT_NOTEBOOK }}"
+          git push origin HEAD:${{ github.ref_name }}
         else
-          git pull origin ${{ github.ref_name }} --rebase || true
-          git commit -m "Add executed notebook $OUTPUT_NOTEBOOK"
-          git push origin HEAD:${{ github.ref_name }} || echo "Push failed due to conflict or other issue"
+          echo "No changes to commit."
         fi
