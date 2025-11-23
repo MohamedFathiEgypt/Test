@@ -5,7 +5,7 @@ on:
     branches: [main]
   workflow_dispatch:
   schedule:
-    - cron: '0 */2 1-7 * *'
+    - cron: '0 */2 1-7 * *'  # Every 2 hours from the 1st to 7th of each month
 
 jobs:
   run-python-script:
@@ -34,4 +34,4 @@ jobs:
           SNOW_DB: ${{ secrets.SNOW_DB }}
           SNOW_SCHEMA: ${{ secrets.SNOW_SCHEMA }}
           SNOW_ROLE: ${{ secrets.SNOW_ROLE }}
-        run: snowflake_task.py
+        run: python snowflake_task.py
