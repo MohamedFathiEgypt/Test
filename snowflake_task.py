@@ -61,7 +61,7 @@ def generate_table_sql(df, table_name, schema="BI", custom_type_map=None):
         "int64": "NUMBER",
         "float64": "FLOAT",
         "object": "VARCHAR",
-        "datetime64[ns]": "TIMESTAMP_NTZ",  # Use proper Snowflake timestamp
+        "datetime64[ns]": "TIMESTAMP_NTZ",
         "bool": "BOOLEAN",
     }
 
@@ -71,12 +71,10 @@ def generate_table_sql(df, table_name, schema="BI", custom_type_map=None):
         snow_type = custom_type_map.get(col_name_upper, type_map.get(str(dtype), "VARCHAR"))
         cols.append(f'"{col_name_upper}" {snow_type}')
 
-    # Use simple triple-quote string with no backslashes in f-string
-    return (
-        f"CREATE OR REPLACE TABLE {schema}.{table_name} (\n"
-        f"    {',\n    '.join(cols)}\n"
-        ");"
-    )
+    # Build SQL without f-string backslash issue
+    cols_sql = ",\n    ".join(cols)
+    sql = "CREATE OR REPLACE TABLE {}.{} (\n    {}\n);".format(schema, table_name, cols_sql)
+    return sql
 
 # ============================================================
 #                Change SnowFlake Type
@@ -90,6 +88,7 @@ custom_types = {
 table_name = "TrendFam_Daily_Confirmed_Snapshot"
 create_sql = generate_table_sql(df, table_name, custom_type_map=custom_types)
 
+# Execute CREATE TABLE
 cursor = conn.cursor()
 cursor.execute(create_sql)
 cursor.close()
