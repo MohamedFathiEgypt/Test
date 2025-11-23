@@ -34,4 +34,4 @@ jobs:
           SNOW_DB: ${{ secrets.SNOW_DB }}
           SNOW_SCHEMA: ${{ secrets.SNOW_SCHEMA }}
           SNOW_ROLE: ${{ secrets.SNOW_ROLE }}
-        run: python main.py
+        run: snowflake_task.py
