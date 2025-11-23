@@ -2,13 +2,14 @@
 #                IMPORT LIBRARIES
 # ============================================================
 import os
+import json
 import pandas as pd
 import pandas_gbq
 import snowflake.connector
 from snowflake.connector.pandas_tools import write_pandas
 
 # ============================================================
-#                BIGQUERY → DATAFRAME
+#                BIGQUERY → DATAFRAME USING SERVICE ACCOUNT
 # ============================================================
 BQ_PROJECT = 'reporting-dashboard-423306'
 
@@ -17,14 +18,31 @@ SELECT *
 FROM `reporting-dashboard-423306.bi.TrendFam_Daily_Confirmed_Snapshot`
 """
 
-df = pandas_gbq.read_gbq(query, project_id=BQ_PROJECT)
+# Load GCP service account credentials from GitHub secret
+gcp_key_json = os.getenv("GCP_KEY")
+if not gcp_key_json:
+    raise ValueError("GCP_KEY environment variable not found!")
 
-# Debugging: print columns
+gcp_info = json.loads(gcp_key_json)
+
+# Read BigQuery table into pandas DataFrame
+df = pandas_gbq.read_gbq(
+    query,
+    project_id=BQ_PROJECT,
+    credentials=pandas_gbq.gbq._load_credentials_from_dict(gcp_info)
+)
+
+# Debug: print columns
 print("DataFrame columns after BigQuery fetch:", df.columns)
 
+# ============================================================
+#                CLEAN DATA: REPLACE EMPTY STRINGS / '#N/A' WITH pd.NA
+# ============================================================
+df = df.replace(["", "#N/A", "None"], pd.NA)
+
 # ----------------------------------------Date/Time----------------------------------------
-df['Month'] = pd.to_datetime(df["Month"], errors='coerce').dt.date
-df['Confirmed_Timestamp'] = pd.to_datetime(df['Confirmed_Timestamp'], errors='coerce')
+df['Month'] = pd.to_datetime(df.get("Month"), errors='coerce').dt.date
+df['Confirmed_Timestamp'] = pd.to_datetime(df.get('Confirmed_Timestamp'), errors='coerce')
 
 # ============================================================
 #                SNOWFLAKE CREDENTIALS (from GitHub Secrets)
@@ -77,7 +95,7 @@ def generate_table_sql(df, table_name, schema="BI", custom_type_map=None):
     return sql
 
 # ============================================================
-#                Change SnowFlake Type
+#                CUSTOM SNOWFLAKE TYPES
 # ============================================================
 custom_types = {
     "MONTH": "DATE",
