@@ -22,8 +22,8 @@ df = pandas_gbq.read_gbq(query, project_id=BQ_PROJECT)
 # Debugging: print columns
 print("DataFrame columns after BigQuery fetch:", df.columns)
 
-# ----------------------------------------Date----------------------------------------
-df['Month'] = pd.to_datetime(df["Month"], format='%Y-%m-%d').dt.date
+# ----------------------------------------Date/Time----------------------------------------
+df['Month'] = pd.to_datetime(df["Month"], errors='coerce').dt.date
 df['Confirmed_Timestamp'] = pd.to_datetime(df['Confirmed_Timestamp'], errors='coerce')
 
 # ============================================================
@@ -61,9 +61,8 @@ def generate_table_sql(df, table_name, schema="BI", custom_type_map=None):
         "int64": "NUMBER",
         "float64": "FLOAT",
         "object": "VARCHAR",
-        "datetime64[ns]": "DATE",
+        "datetime64[ns]": "TIMESTAMP_NTZ",  # Use proper Snowflake timestamp
         "bool": "BOOLEAN",
-        "timestamp" : "TIMESTAMP_NTZ"
     }
 
     cols = []
@@ -72,11 +71,12 @@ def generate_table_sql(df, table_name, schema="BI", custom_type_map=None):
         snow_type = custom_type_map.get(col_name_upper, type_map.get(str(dtype), "VARCHAR"))
         cols.append(f'"{col_name_upper}" {snow_type}')
 
-    return f"""
-CREATE OR REPLACE TABLE {schema}.{table_name} (
-    {",\n    ".join(cols)}
-);
-"""
+    # Use simple triple-quote string with no backslashes in f-string
+    return (
+        f"CREATE OR REPLACE TABLE {schema}.{table_name} (\n"
+        f"    {',\n    '.join(cols)}\n"
+        ");"
+    )
 
 # ============================================================
 #                Change SnowFlake Type
