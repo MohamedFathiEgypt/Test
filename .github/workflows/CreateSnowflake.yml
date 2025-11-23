@@ -1,16 +1,18 @@
-name: Run Snowflake Task Daily  
+name: Run Snowflake ETL
 
-on:                           
-  schedule:
-    - cron: '0 7 * * *'
+on:
+  push:
+    branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '0 */2 1-7 * *'
 
-jobs:                          
-  run-snowflake:
+jobs:
+  run-python-script:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout Repo
         uses: actions/checkout@v3
 
       - name: Set up Python
@@ -18,12 +20,12 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install snowflake-connector-python
-      - name: Run Snowflake Script
-        run: python snowflake_task.py
+          pip install -r requirements.txt
+
+      - name: Run ETL Script
         env:
           SNOW_USER: ${{ secrets.SNOW_USER }}
           SNOW_PASSWORD: ${{ secrets.SNOW_PASSWORD }}
@@ -32,16 +34,4 @@ jobs:
           SNOW_DB: ${{ secrets.SNOW_DB }}
           SNOW_SCHEMA: ${{ secrets.SNOW_SCHEMA }}
           SNOW_ROLE: ${{ secrets.SNOW_ROLE }}
-
-      - name: Commit executed notebook
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          mkdir -p executed_notebooks
-          mv "executed_notebook_20251122_183224.ipynb" executed_notebooks/ || echo "No notebook to move"
-          git add executed_notebooks/
-          if ! git diff-index --quiet HEAD; then
-            git commit -m "Add executed notebook: executed_notebook_20251122_183224.ipynb"
-          fi
-          git pull --rebase origin main
-          git push origin HEAD:main
+        run: python main.py
