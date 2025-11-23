@@ -2,7 +2,7 @@ name: Run Snowflake Task Daily
 
 on:                           
   schedule:
-    - cron: '0 13 * * *'
+    - cron: '0,30 11-14 * * *'
     
   workflow_dispatch:
 
