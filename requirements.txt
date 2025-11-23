@@ -5,7 +5,7 @@ jupyter
 notebook
 nbconvert
 ipython
-
+snowflake-connector-python
 # Google Sheets and Authentication
 gspread
 google-auth
@@ -20,6 +20,5 @@ diffusers==0.20.2
 featuretools
 
 pandas-gbq==0.20.0
-snowflake-connector-python
 pytest-shutil
 mysql-connector-python
