@@ -17,3 +17,9 @@ Pillow
 traitlets
 jinja2
 diffusers==0.20.2
+featuretools
+
+pandas-gbq==0.20.0
+snowflake-connector-python
+pytest-shutil
+mysql-connector-python
