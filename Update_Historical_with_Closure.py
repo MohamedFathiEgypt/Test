@@ -447,11 +447,12 @@ WHEN NOT MATCHED THEN
    
     cursor.execute(merge_query)
     conn.commit()
-    
 
 except Exception as e:
-    # print(f"Error executing MERGE in Snowflake: {e}")
+    # Must include a real statement here to avoid IndentationError
+    print(f"Error executing MERGE in Snowflake: {e}")
+
 finally:
     if conn:
         conn.close()
-        # print("Snowflake connection closed.")
+        print("Snowflake connection closed.")
