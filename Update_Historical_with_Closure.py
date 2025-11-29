@@ -331,7 +331,7 @@ with base as (
     on 
          DATE_TRUNC('millisecond',snp.CONFIRMED_TIMESTAMP) = DATE_TRUNC('millisecond', V.CREATED_AT)
     and  Lower(snp.source_type) = Lower(v.source_type)
-    and  SNP.Month = V.date
+    and  SNP.Month = V.month_start
     
         where snp.month is not null
     
