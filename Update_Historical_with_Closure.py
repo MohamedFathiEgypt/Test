@@ -4,7 +4,6 @@ import snowflake.connector
 # ============================================================
 #                SNOWFLAKE CREDENTIALS
 # ============================================================
-# Set these environment variables in GitHub Actions secrets for security
 SNOW_USER = os.environ.get("SNOW_USER")
 SNOW_PASSWORD = os.environ.get("SNOW_PASSWORD")
 SNOW_ACCOUNT = os.environ.get("SNOW_ACCOUNT")
@@ -14,7 +13,7 @@ SNOW_SCHEMA = os.environ.get("SNOW_SCHEMA")
 SNOW_ROLE = os.environ.get("SNOW_ROLE")
 
 # ============================================================
-#                CONNECT TO SNOWFLAKE AND CREATE TABLE
+#                CONNECT TO SNOWFLAKE AND EXECUTE MERGE
 # ============================================================
 conn = None
 try:
@@ -29,13 +28,11 @@ try:
     )
     cursor = conn.cursor()
 
-    new_table = "TrendFam_BI_HIS_Current"
-    source_table = "PRODUCTION.BI.TRENDFAM_BI_HISTORICAL_ROW"
-
-    select_query = """
-
-
-MERGE INTO TRENDFAM_BI_HISTORICAL_ROW H
+    # ============================================================
+    #                MERGE SQL QUERY
+    # ============================================================
+    merge_query = """
+    MERGE INTO TRENDFAM_BI_HISTORICAL_ROW H
 USING (
 select
             TO_CHAR(DATE, 'MM-MMMM-YYYY') as MONTH_TEXT,
@@ -444,19 +441,17 @@ WHEN NOT MATCHED THEN
 
     """
 
-    create_ctas_sql = f"""
-    CREATE OR REPLACE TABLE {SNOW_SCHEMA}.{new_table} AS
-    {select_query};
-    """
-
-    print(f"Creating table '{new_table}' in Snowflake...")
-    cursor.execute(create_ctas_sql)
+    # ============================================================
+    #                Execute MERGE
+    # ============================================================
+   
+    cursor.execute(merge_query)
     conn.commit()
-    print(f"Table '{new_table}' created successfully.")
+    
 
 except Exception as e:
-    print(f"Error creating table in Snowflake: {e}")
+    # print(f"Error executing MERGE in Snowflake: {e}")
 finally:
     if conn:
         conn.close()
-        print("Snowflake connection closed.")
+        # print("Snowflake connection closed.")
