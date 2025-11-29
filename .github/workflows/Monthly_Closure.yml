@@ -2,8 +2,8 @@ name: Run Monthly_Closure
 
 on:                           
   schedule:
-    - cron: '0,45 * 1-7 * *'
-    
+    # - cron: '0,45 * 1-7 * *'  # Every 45 Minutes From 1st -7th Every month
+    - cron: '0 */2 1-7 * *'   # Every 2 Hours From 1st -7th Every month
   workflow_dispatch:
 
 jobs:                          
