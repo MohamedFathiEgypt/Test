@@ -42,7 +42,7 @@ try:
 
 select
             TO_CHAR(DATE, 'MM-MMMM-YYYY') as MONTH_TEXT,
-            Date(month_start) as MONTH_DATE,
+            CAST(month_start AS DATE) AS MONTH_DATE,
             Date(DATE) As DATE,
             source_type AS BU,
             Campaign_Name,
