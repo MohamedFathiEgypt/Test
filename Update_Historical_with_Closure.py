@@ -32,7 +32,8 @@ try:
     #                MERGE SQL QUERY
     # ============================================================
     merge_query = """
-    MERGE INTO PRODUCTION.BI.TRENDFAM_BI_HISTORICAL_ROW H
+
+     MERGE INTO PRODUCTION.BI.TRENDFAM_BI_HISTORICAL_ROW H
 USING (
 select
             TO_CHAR(DATE, 'MM-MMMM-YYYY') as MONTH_TEXT,
@@ -55,10 +56,10 @@ select
             Fixed_cost AS FIXED_COST,
             sum(total_cost) TOTAL_COST,
             country AS COUNTRY,
-            SUM(brand_offers_earnings) AS BRAND_OFFERS_BONUS,
+            SUM(brand_offers_earnings) AS BRAND_OFFER_BONUS,
             FIXED_REVSHARE,
             sum(cash_bonus) BONUS,
-            sum(total_rev_share) TOTAL_REV_SHARE_COST,
+            sum(total_rev_share) TOTAL_REVSHARE_COST,
             code COUPON,
             SUM(GMV) GMV,
             sum(new_buyer) NEW_BUYERS,
@@ -82,7 +83,7 @@ select
             NULL AS CAMPAIGN_TYPE,
             V.user_id INF_USER_ID,
             'Normal' As AGENCY_BOUNCE_LABEL
-          
+
             -- sum(number_of_transactions) number_of_transactions,
 
 
@@ -325,71 +326,72 @@ with base as (
     ) V
 
     left join (Select * From  PRODUCTION.BI.TrendFam_Daily_Confirmed_Snapshot SNP where CONFIRMED_TIMESTAMP is not null) SNP
-    on 
+    on
          DATE_TRUNC('millisecond',snp.CONFIRMED_TIMESTAMP) = DATE_TRUNC('millisecond', V.CREATED_AT)
     and  Lower(snp.source_type) = Lower(v.source_type)
     and  SNP.Month = V.month_start
-    
+
         where snp.month is not null
-    
-    group by 
+
+    group by
     1,2,3,4,5,6,7,8,9,15,16,17,18,20,22,25,30,34,35,36,37,40,41,42,43,44
-    
-    order by 
+
+    order by
     2 ASC
     ) S
-ON 
+ON
 Date(H.MONTH_DATE) = Date(S.MONTH_DATE)
 WHEN NOT MATCHED THEN
-    INSERT 
+    INSERT
 
         (
-        S.MONTH_TEXT,
-        S.MONTH_DATE,
-        S.DATE,
-        S.BU,
-        S.Campaign_Name,
-        S.TL,
-        S.TM,
-        S.INSTAGRAM_NAME,
-        S.email,
-        S.TOTAL_REVENUE,
-        S.COUPONS,
-        S.REV,
-        S.COST_LINKS,
-        S.COST_COUPONS,
-        S.INF_NAME,
-        S.CM,
-        S.AGENCY_BONUS,
-        S.FIXED_COST,
-        S.TOTAL_COST,
-        S.COUNTRY,
-        S.BRAND_OFFERS_BONUS,
-        S.FIXED_REVSHARE,
-        S.BONUS,
-        S.TOTAL_REV_SHARE_COST,
-        S.COUPON,
-        S.GMV,
-        S.NEW_BUYERS,
-        S.ORDERS_COUPONS,
-        S.ORDERS_LINKS,
-        S.new_partner,
-        S.BRAND_OFFER_REV,
-        S.BRAND_OFFER_COST,
-        S.SESSION,
-        S.REGISTRATION_DATE,
-        S.NEW_INFLUENCER,
-        S.NEW_RECRUIT,
-        S.MF_HAITHAM,
-        S.BRANDING_BONUS,
-        S.BRANDING_BONUS_COST,
-        S.FIXED_COST_COUPONS,
-        S.FIXED_COST_LINKS,
-        S.CAMPAIGN_TYPE,
-        S.INF_USER_ID,
-        S.AGENCY_BOUNCE_LABEL
+      MONTH_TEXT,
+      MONTH_DATE,
+      DATE,
+      BU,
+      Campaign_Name,
+      TL,
+      TM,
+      INSTAGRAM_NAME,
+      email,
+      TOTAL_REVENUE,
+      COUPONS,
+      REV,
+      COST_LINKS,
+      COST_COUPONS,
+      INF_NAME,
+      CM,
+      AGENCY_BONUS,
+      FIXED_COST,
+      TOTAL_COST,
+      COUNTRY,
+      BRAND_OFFER_BONUS,
+      FIXED_REVSHARE,
+      BONUS,
+      TOTAL_REVSHARE_COST,
+      COUPON,
+      GMV,
+      NEW_BUYERS,
+      ORDERS_COUPONS,
+      ORDERS_LINKS,
+      new_partner,
+      BRAND_OFFER_REV,
+      BRAND_OFFER_COST,
+      SESSION,
+      REGISTRATION_DATE,
+      NEW_INFLUENCER,
+      NEW_RECRUIT,
+      MF_HAITHAM,
+      BRANDING_BONUS,
+      BRANDING_BONUS_COST,
+      FIXED_COST_COUPONS,
+      FIXED_COST_LINKS,
+      CAMPAIGN_TYPE,
+      INF_USER_ID,
+      AGENCY_BOUNCE_LABEL
+
         )
-        
+
     VALUES (
         S.MONTH_TEXT,
         S.MONTH_DATE,
@@ -411,10 +413,10 @@ WHEN NOT MATCHED THEN
         S.FIXED_COST,
         S.TOTAL_COST,
         S.COUNTRY,
-        S.BRAND_OFFERS_BONUS,
+        S.BRAND_OFFER_BONUS,
         S.FIXED_REVSHARE,
         S.BONUS,
-        S.TOTAL_REV_SHARE_COST,
+        S.TOTAL_REVSHARE_COST,
         S.COUPON,
         S.GMV,
         S.NEW_BUYERS,
@@ -436,8 +438,6 @@ WHEN NOT MATCHED THEN
         S.INF_USER_ID,
         S.AGENCY_BOUNCE_LABEL
     )
-
-
 
     """
 
