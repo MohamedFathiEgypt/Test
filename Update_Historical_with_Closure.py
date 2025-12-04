@@ -338,8 +338,8 @@ with base as (
     order by 
     2 ASC
     ) S
-ON H.ID = S.ID
-   AND H.MONTH_DATE = S.MONTH_DATE
+ON 
+H.MONTH_DATE = S.MONTH_DATE
 WHEN NOT MATCHED THEN
     INSERT 
 
