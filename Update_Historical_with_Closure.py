@@ -339,7 +339,7 @@ with base as (
     2 ASC
     ) S
 ON 
-H.MONTH_DATE = S.MONTH_DATE
+Date(H.MONTH_DATE) = Date(S.MONTH_DATE)
 WHEN NOT MATCHED THEN
     INSERT 
 
