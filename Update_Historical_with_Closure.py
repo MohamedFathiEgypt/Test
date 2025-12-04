@@ -32,12 +32,12 @@ try:
     #                MERGE SQL QUERY
     # ============================================================
     merge_query = """
-    MERGE INTO TRENDFAM_BI_HISTORICAL_ROW H
+    MERGE INTO PRODUCTION.BI.TRENDFAM_BI_HISTORICAL_ROW H
 USING (
 select
             TO_CHAR(DATE, 'MM-MMMM-YYYY') as MONTH_TEXT,
-            month_start as MONTH_DATE,
-            DATE,
+            Date(month_start) as MONTH_DATE,
+            Date(DATE) as DATE,
             V.source_type AS BU,
             Campaign_Name,
             TL,
