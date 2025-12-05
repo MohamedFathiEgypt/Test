@@ -1,20 +1,3 @@
-permissions:
-  actions: write
-
-name: My Workflow
-
-defaults:
-  run:
-    shell: bash
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    retention-days: 1
-
-
-
-
 name: Run Snowflake Task Daily  
 
 on:                           
