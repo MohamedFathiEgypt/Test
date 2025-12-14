@@ -175,10 +175,10 @@ with base as (
           order by 3
  -- where insta_name= 'nalleosman'
 )
-, allocation AS (
+,  AS (
 
             select distinct  *
-             from PRODUCTION.PERF_BI_RAW.TRENDFAM_ALLOCATIONS
+             from PRODUCTION.BI.TRENDFAM_HITORICAL_ALLOCATION
              where month < date_trunc('month',current_date())
              order by 7 desc
 
