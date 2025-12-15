@@ -83,7 +83,10 @@ select
             NULL AS CAMPAIGN_TYPE,
             V.user_id INF_USER_ID,
             'Normal' As AGENCY_BOUNCE_LABEL
-
+            'No' As Is_Payment_Adjusted,
+            0 As Adjusted_Agency_Bounce,
+            0 as Adjusted_Branding_Bounce,
+            'No' As Added_to_Balance_Variance,
             -- sum(number_of_transactions) number_of_transactions,
 
 
@@ -340,7 +343,7 @@ with base as (
         where snp.month is not null
 
     group by
-    1,2,3,4,5,6,7,8,9,15,16,17,18,20,22,25,30,34,35,36,37,40,41,42,43,44
+    1,2,3,4,5,6,7,8,9,15,16,17,18,20,22,25,30,34,35,36,37,40,41,42,43,44,45,46,47,48
 
     order by
     2 ASC
@@ -394,7 +397,12 @@ WHEN NOT MATCHED THEN
       FIXED_COST_LINKS,
       CAMPAIGN_TYPE,
       INF_USER_ID,
-      AGENCY_BOUNCE_LABEL
+      AGENCY_BOUNCE_LABEL,
+      Is_Payment_Adjusted,
+      Adjusted_Agency_Bounce,
+      Adjusted_Branding_Bounce,
+      Added_to_Balance_Variance
+
 
         )
 
@@ -442,7 +450,11 @@ WHEN NOT MATCHED THEN
         S.FIXED_COST_LINKS,
         S.CAMPAIGN_TYPE,
         S.INF_USER_ID,
-        S.AGENCY_BOUNCE_LABEL
+        S.AGENCY_BOUNCE_LABEL,
+        s.Is_Payment_Adjusted,
+        s.Adjusted_Agency_Bounce,
+        s.Adjusted_Branding_Bounce,
+        s.Added_to_Balance_Variance
     )
 
     """
