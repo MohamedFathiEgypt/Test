@@ -175,7 +175,7 @@ with base as (
           order by 3
  -- where insta_name= 'nalleosman'
 )
-,  AS (
+, allocation  AS (
 
             select distinct  *
              from PRODUCTION.BI.TRENDFAM_HITORICAL_ALLOCATION
@@ -310,12 +310,18 @@ with base as (
 
 
     from base
+    
     left join inc as inc_l
-    on base.month_start = inc_l.month and base.INSTAGRAM_NAME = inc_l.INSTA_NAME
+    on base.month_start = inc_l.month 
+    and base.INSTAGRAM_NAME = inc_l.INSTA_NAME
     and lower(base.source_type) = lower(inc_l.BU)
     and inc_l.models in ('Link','links')
-    left join allocation on base.month_start = allocation.month and base.INSTAGRAM_NAME = allocation.instagram_name
+    
+    left join allocation 
+    on base.month_start = allocation.month 
+    and Lower(base.INSTAGRAM_NAME) = Lower(allocation.instagram_name)
     and lower(base.source_type) = lower(allocation.bu)
+    
     left join  inc as inc_c
     on base.month_start = inc_c.month and base.INSTAGRAM_NAME = inc_c.INSTA_NAME
     and lower(base.source_type) = lower(inc_c.BU) and inc_c.models = 'coupons'
