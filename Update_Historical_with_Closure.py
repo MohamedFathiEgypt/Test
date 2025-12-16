@@ -82,11 +82,11 @@ select
             0 AS FIXED_COST_LINKS,
             NULL AS CAMPAIGN_TYPE,
             V.user_id INF_USER_ID,
-            'Normal' As AGENCY_BOUNCE_LABEL
+            'Normal' As AGENCY_BOUNCE_LABEL,
             'No' As Is_Payment_Adjusted,
             0 As Adjusted_Agency_Bounce,
             0 as Adjusted_Branding_Bounce,
-            'No' As Added_to_Balance_Variance,
+            'No' As Added_to_Balance_Variance
             -- sum(number_of_transactions) number_of_transactions,
 
 
