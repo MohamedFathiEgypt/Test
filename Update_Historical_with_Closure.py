@@ -58,11 +58,11 @@ select
             REGEXP_REPLACE(TRIM(REGEXP_REPLACE(Fixed_cost, '[\r\n]+', ' ')), '\\s+', ' ') As FIXED_COST,
             sum(total_cost) TOTAL_COST,
             REGEXP_REPLACE(TRIM(REGEXP_REPLACE(country, '[\r\n]+', ' ')), '\\s+', ' ') As COUNTRY,
-            SUM(brand_offers_earnings) AS BRAND_OFFERS_BONUS,
+            SUM(brand_offers_earnings) AS BRAND_OFFER_BONUS,
             REGEXP_REPLACE(TRIM(REGEXP_REPLACE(FIXED_REVSHARE, '[\r\n]+', ' ')), '\\s+', ' ') As FIXED_REVSHARE,
            
             sum(cash_bonus) BONUS,
-            sum(total_rev_share) TOTAL_REV_SHARE_COST,
+            sum(total_rev_share) TOTAL_REVSHARE_COST,
             REGEXP_REPLACE(TRIM(REGEXP_REPLACE(code, '[\r\n]+', ' ')), '\\s+', ' ') As COUPON,
             SUM(GMV) GMV,
             sum(new_buyer) NEW_BUYERS,
