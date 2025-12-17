@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 import snowflake.connector
 
 # ============================================================
@@ -12,6 +13,12 @@ SNOW_WH = os.environ.get("SNOW_WH")
 SNOW_DB = os.environ.get("SNOW_DB")
 SNOW_SCHEMA = os.environ.get("SNOW_SCHEMA")
 SNOW_ROLE = os.environ.get("SNOW_ROLE")
+
+cols_to_clean = ['Month_Text', 'BU', 'Campaign_Name', 'TL', 'TM', 
+                 'Instagram_Name', 'Email', 'Inf_Name', 'CM', 'Country', 
+                 'Fixed_RevShare', 'Coupon', 'New_Partner', 'New_Influencer', 
+                 'New_Recruit', 'MF_Haitham', 'Campaign_Type', 
+                 'Agency_Bounce_Label', 'Is_Payment_Adjusted', 'Added_to_Balance_Variance']
 
 # ============================================================
 #                CONNECT TO SNOWFLAKE AND CREATE TABLE
@@ -340,6 +347,7 @@ with base as (
 
     """
 
+    # Create or replace table
     create_ctas_sql = f"""
     CREATE OR REPLACE TABLE {SNOW_SCHEMA}.{new_table} AS
     {select_query};
@@ -350,8 +358,33 @@ with base as (
     conn.commit()
     print(f"Table '{new_table}' created successfully.")
 
+    # ============================================================
+    #                FETCH DATA INTO PANDAS
+    # ============================================================
+    print("Fetching data into Pandas DataFrame...")
+    df = pd.read_sql(f"SELECT * FROM {SNOW_SCHEMA}.{new_table}", conn)
+
+    # ============================================================
+    #                CLEAN TEXT COLUMNS
+    # ============================================================
+    print("Cleaning text columns...")
+    # Replace empty/invalid values
+    df[cols_to_clean] = df[cols_to_clean].replace(["", "#N/A", None], pd.NA)
+
+    # Convert to string and remove line breaks
+    for col in cols_to_clean:
+        df[col] = df[col].astype("string").str.replace(r'[\r\n]+', ' ', regex=True)
+
+    # ============================================================
+    #                EXPORT CLEAN CSV (optional)
+    # ============================================================
+    output_file = "cleaned_trendfam_data.csv"
+    df.to_csv(output_file, index=False, encoding="utf-8-sig")
+    print(f"Cleaned data exported to '{output_file}'.")
+
 except Exception as e:
-    print(f"Error creating table in Snowflake: {e}")
+    print(f"Error: {e}")
+
 finally:
     if conn:
         conn.close()
