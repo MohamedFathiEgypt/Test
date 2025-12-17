@@ -21,6 +21,10 @@ cols_to_clean = ['Month_Text', 'BU', 'Campaign_Name', 'TL', 'TM',
                  'New_Recruit', 'MF_Haitham', 'Campaign_Type', 
                  'Agency_Bounce_Label', 'Is_Payment_Adjusted', 'Added_to_Balance_Variance']
 
+# Table names
+new_table = "TrendFam_BI_HIS_Current"
+source_table = "PRODUCTION.BI.TRENDFAM_BI_HISTORICAL_ROW"
+
 # ============================================================
 #                CONNECT TO SNOWFLAKE
 # ============================================================
@@ -38,13 +42,21 @@ try:
     cursor = conn.cursor()
 
     # ============================================================
-    #                FETCH RAW DATA (HISTORICAL + CURRENT)
+    #                FETCH HISTORICAL DATA
     # ============================================================
-    select_query = """
+    print("Fetching historical data...")
+    df_hist = pd.read_sql(f"SELECT * FROM {source_table}", conn)
 
-Select * from PRODUCTION.BI.TRENDFAM_BI_HISTORICAL_ROW 
+    # ============================================================
+    #                FETCH CURRENT MONTH DATA
+    # ============================================================
+    print("Fetching current month data...")
+    current_month_query = """
 
-union all
+ Select * from PRODUCTION.BI.TRENDFAM_BI_HISTORICAL_ROW 
+ union all
+
+
 
 select
             TO_CHAR(DATE, 'MM-MMMM-YYYY') as MONTH_TEXT,
@@ -345,9 +357,13 @@ with base as (
 
     
     """
+    df_current = pd.read_sql(current_month_query, conn)
 
-    print("Fetching raw data into Pandas DataFrame...")
-    df = pd.read_sql(select_query, conn)
+    # ============================================================
+    #                COMBINE HISTORICAL + CURRENT DATA
+    # ============================================================
+    print("Combining historical and current month data...")
+    df = pd.concat([df_hist, df_current], ignore_index=True)
 
     # ============================================================
     #                CLEAN TEXT COLUMNS
@@ -360,9 +376,7 @@ with base as (
     # ============================================================
     #                WRITE CLEANED DATA TO SNOWFLAKE
     # ============================================================
-    new_table = "TrendFam_BI_HIS_Current"
-    print(f"Creating Snowflake table '{new_table}' with cleaned data...")
-
+    print(f"Creating or replacing Snowflake table '{new_table}'...")
     success, nchunks, nrows, _ = write_pandas(
         conn=conn,
         df=df,
