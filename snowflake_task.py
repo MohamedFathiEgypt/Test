@@ -374,12 +374,6 @@ with base as (
 
     print(f"Table '{new_table}' created successfully with {nrows} rows.")
 
-    # ============================================================
-    #                OPTIONAL EXPORT TO CSV
-    # ============================================================
-    output_file = "cleaned_trendfam_data.csv"
-    df.to_csv(output_file, index=False, encoding="utf-8-sig")
-    print(f"Cleaned data exported to '{output_file}'.")
 
 except Exception as e:
     print(f"Error: {e}")
