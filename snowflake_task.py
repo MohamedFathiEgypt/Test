@@ -41,22 +41,25 @@ try:
 
 
 select
-            TO_CHAR(DATE, 'MM-MMMM-YYYY') as MONTH_TEXT,
-            CAST(month_start AS DATE) AS MONTH_DATE,
+           
+            
+            REGEXP_REPLACE(TRIM(REGEXP_REPLACE(TO_CHAR(DATE, 'MM-MMMM-YYYY'), '[\r\n]+', ' ')), '\\s+', ' ') as MONTH_TEXT,
+            REGEXP_REPLACE(TRIM(REGEXP_REPLACE( CAST(month_start AS DATE), '[\r\n]+', ' ')), '\\s+', ' ') AS MONTH_DATE,
             CAST(DATE AS DATE) As DATE,
-            source_type AS BU,
-            Campaign_Name,
-            TL,
-            TM,
-            INSTAGRAM_NAME,
-            email,
+            REGEXP_REPLACE(TRIM(REGEXP_REPLACE(source_type, '[\r\n]+', ' ')), '\\s+', ' ') AS BU,
+            REGEXP_REPLACE(TRIM(REGEXP_REPLACE(Campaign_Name, '[\r\n]+', ' ')), '\\s+', ' ') As Campaign_Name,
+            REGEXP_REPLACE(TRIM(REGEXP_REPLACE(TL, '[\r\n]+', ' ')), '\\s+', ' ') As TL,
+            REGEXP_REPLACE(TRIM(REGEXP_REPLACE(TM, '[\r\n]+', ' ')), '\\s+', ' ') As TM,
+            REGEXP_REPLACE(TRIM(REGEXP_REPLACE(INSTAGRAM_NAME, '[\r\n]+', ' ')), '\\s+', ' ') As INSTAGRAM_NAME,
+            REGEXP_REPLACE(TRIM(REGEXP_REPLACE(email, '[\r\n]+', ' ')), '\\s+', ' ') as email, 
+        
             sum(total_revenue) TOTAL_REVENUE ,
             sum(code_bonus) COUPONS,
             Sum(trendfam_earnings) REV,
             sum(cost_link) COST_LINKS,
             sum(cost_coupon)COST_COUPONS,
-            INF_NAME,
-            COALESCE(CM,CM_TL_NAME) AS CM,
+            REGEXP_REPLACE(TRIM(REGEXP_REPLACE(INF_NAME, '[\r\n]+', ' ')), '\\s+', ' ') As INF_NAME,
+            REGEXP_REPLACE(TRIM(REGEXP_REPLACE(COALESCE(CM,CM_TL_NAME), '[\r\n]+', ' ')), '\\s+', ' ')  AS CM,
             0 AS AGENCY_BONUS,
             Fixed_cost AS FIXED_COST,
             sum(total_cost) TOTAL_COST,
