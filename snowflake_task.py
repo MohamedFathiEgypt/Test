@@ -46,7 +46,7 @@ select
             REGEXP_REPLACE(TRIM(REGEXP_REPLACE(TO_CHAR(DATE, 'MM-MMMM-YYYY'), '[\r\n]+', ' ')), '\\s+', ' ') as MONTH_TEXT,
             REGEXP_REPLACE(TRIM(REGEXP_REPLACE( CAST(month_start AS DATE), '[\r\n]+', ' ')), '\\s+', ' ') AS MONTH_DATE,
             CAST(DATE AS DATE) As DATE,
-            REGEXP_REPLACE(TRIM(REGEXP_REPLACE(source_type, '[\r\n]+', ' ')), '\\s+', ' ') AS BU,
+            REGEXP_REPLACE(TRIM(REGEXP_REPLACE(V.source_type, '[\r\n]+', ' ')), '\\s+', ' ') AS BU,
             REGEXP_REPLACE(TRIM(REGEXP_REPLACE(Campaign_Name, '[\r\n]+', ' ')), '\\s+', ' ') As Campaign_Name,
             REGEXP_REPLACE(TRIM(REGEXP_REPLACE(TL, '[\r\n]+', ' ')), '\\s+', ' ') As TL,
             REGEXP_REPLACE(TRIM(REGEXP_REPLACE(TM, '[\r\n]+', ' ')), '\\s+', ' ') As TM,
