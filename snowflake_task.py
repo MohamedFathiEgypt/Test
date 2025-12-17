@@ -1,11 +1,10 @@
 import os
-import pandas as pd
 import snowflake.connector
-from snowflake.connector.pandas_tools import write_pandas
 
 # ============================================================
 #                SNOWFLAKE CREDENTIALS
 # ============================================================
+# Set these environment variables in GitHub Actions secrets for security
 SNOW_USER = os.environ.get("SNOW_USER")
 SNOW_PASSWORD = os.environ.get("SNOW_PASSWORD")
 SNOW_ACCOUNT = os.environ.get("SNOW_ACCOUNT")
@@ -14,14 +13,8 @@ SNOW_DB = os.environ.get("SNOW_DB")
 SNOW_SCHEMA = os.environ.get("SNOW_SCHEMA")
 SNOW_ROLE = os.environ.get("SNOW_ROLE")
 
-cols_to_clean = ['Month_Text', 'BU', 'Campaign_Name', 'TL', 'TM', 
-                 'Instagram_Name', 'Email', 'Inf_Name', 'CM', 'Country', 
-                 'Fixed_RevShare', 'Coupon', 'New_Partner', 'New_Influencer', 
-                 'New_Recruit', 'MF_Haitham', 'Campaign_Type', 
-                 'Agency_Bounce_Label', 'Is_Payment_Adjusted', 'Added_to_Balance_Variance']
-
 # ============================================================
-#                CONNECT TO SNOWFLAKE
+#                CONNECT TO SNOWFLAKE AND CREATE TABLE
 # ============================================================
 conn = None
 try:
@@ -37,6 +30,8 @@ try:
     cursor = conn.cursor()
 
     new_table = "TrendFam_BI_HIS_Current"
+    source_table = "PRODUCTION.BI.TRENDFAM_BI_HISTORICAL_ROW"
+
     select_query = """
 
 
@@ -345,26 +340,18 @@ with base as (
 
     """
 
-    df = pd.read_sql(select_query, conn)
+    create_ctas_sql = f"""
+    CREATE OR REPLACE TABLE {SNOW_SCHEMA}.{new_table} AS
+    {select_query};
+    """
 
-    # ============================================================
-    #                CLEAN TEXT COLUMNS BEFORE CREATE TABLE
-    # ============================================================
-    print("Cleaning text columns in Pandas before writing to Snowflake...")
-    df[cols_to_clean] = df[cols_to_clean].replace(["", "#N/A", None], pd.NA)
-    for col in cols_to_clean:
-        df[col] = df[col].astype("string").str.replace(r'[\r\n]+', ' ', regex=True)
-        df[col] = df[col].str.strip()
+    print(f"Creating table '{new_table}' in Snowflake...")
+    cursor.execute(create_ctas_sql)
+    conn.commit()
+    print(f"Table '{new_table}' created successfully.")
 
-    # ============================================================
-    #                CREATE TABLE WITH CLEANED DATA
-    # ============================================================
-    print(f"Creating table '{new_table}' in Snowflake with cleaned data...")
-    write_pandas(conn, df, new_table, auto_create_table=True, overwrite=True)
-  
 except Exception as e:
-    print(f"Error: {e}")
-
+    print(f"Error creating table in Snowflake: {e}")
 finally:
     if conn:
         conn.close()
